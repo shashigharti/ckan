@@ -17827,6 +17827,9 @@ iframe {
 .reduced-padding {
   padding: 3px 5px;
 }
+.skip-content {
+  background-color: white;
+}
 @media (min-width: 768px) {
   .wrapper:before {
     left: initial;

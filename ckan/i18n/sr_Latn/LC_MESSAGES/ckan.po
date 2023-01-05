@@ -2650,7 +2650,7 @@ msgid "Submit"
 msgstr "Prihvatite"
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
+msgid "Skip to main content"
 msgstr "Pređite na sadržaj"
 
 #: ckan/templates/page.html:36

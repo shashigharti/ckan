@@ -2658,7 +2658,7 @@ msgid "Submit"
 msgstr "Pošalji"
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
+msgid "Skip to main content"
 msgstr "Pređi na sadržaj"
 
 #: ckan/templates/page.html:36
