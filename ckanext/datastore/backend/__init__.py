@@ -147,6 +147,18 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
+    def delete_alias(self, context: Context, data_dict: dict[str, Any]) -> Any:
+        """Remove resource from datastore.
+
+        Called by `datastore_alias_delete`.
+
+        :param data_dict: See
+        `ckanext.datastore.logic.action.datastore_alias_delete`
+        :returns: Original filters sent.
+        :rtype: dictonary
+        """
+        raise NotImplementedError()
+
     def search(self, context: Context, data_dict: dict[str, Any]) -> Any:
         """Base search.
 

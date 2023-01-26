@@ -1986,6 +1986,24 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         finally:
             context['connection'].close()
 
+    def delete_alias(self, context: Context, data_dict: dict[str, Any]):
+        engine = self._get_write_engine()
+        context['connection'] = engine.connect()
+        _cache_types(context['connection'])
+
+        trans = context['connection'].begin()
+        try:
+            sql_alias_drop_string = '''DROP VIEW "{0}"
+            '''.format(data_dict['alias_id'])
+            context['connection'].execute(sql_alias_drop_string)
+            trans.commit()
+            return _unrename_json_field(data_dict)
+        except Exception:
+            trans.rollback()
+            raise
+        finally:
+            context['connection'].close()
+
     def create(self, context: Context, data_dict: dict[str, Any]):
         '''
         The first row will be used to guess types not in the fields and the
