@@ -1988,21 +1988,14 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def delete_alias(self, context: Context, data_dict: dict[str, Any]):
         engine = self._get_write_engine()
-        context['connection'] = engine.connect()
-        _cache_types(context['connection'])
-
-        trans = context['connection'].begin()
-        try:
-            sql_alias_drop_string = '''DROP VIEW "{0}"
-            '''.format(data_dict['alias_id'])
-            context['connection'].execute(sql_alias_drop_string)
-            trans.commit()
-            return _unrename_json_field(data_dict)
-        except Exception:
-            trans.rollback()
-            raise
-        finally:
-            context['connection'].close()
+        with engine.connect() as connection:
+            with connection.begin():
+                sql_alias_drop_string = """DROP VIEW "{0}"
+                """.format(
+                    data_dict["alias_id"]
+                )
+                connection.execute(sql_alias_drop_string)
+        return _unrename_json_field(data_dict)
 
     def create(self, context: Context, data_dict: dict[str, Any]):
         '''

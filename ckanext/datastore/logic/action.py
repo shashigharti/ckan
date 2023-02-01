@@ -435,7 +435,6 @@ def datastore_alias_delete(context: Context, data_dict: dict[str, Any]):
     '''Deletes an alias from the DataStore.
 
     :param alias_id: alias id that the data will be deleted from.
-                        (optional)
     :type alias_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
@@ -459,23 +458,22 @@ def datastore_alias_delete(context: Context, data_dict: dict[str, Any]):
         alias_id = data_dict['alias_id']
         _check_read_only(context, alias_id)
 
-    res_id = data_dict['alias_id']
-    alias_exists, _ = backend.resource_id_from_alias(res_id)
+    alias_id = data_dict['alias_id']
+    alias_exists, _ = backend.resource_id_from_alias(alias_id)
 
     if not alias_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(res_id)
+            'Resource "{0}" was not found.'.format(alias_id)
         ))
 
     result = backend.delete_alias(context, data_dict)
     p.toolkit.signals.datastore_alias_delete.send(
-        res_id, result=result, data_dict=data_dict)
+        alias_id, result=result, data_dict=data_dict)
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
-    result.pop('id', None)
-    result.pop('connection_url', None)
-    return result
+    response = {"alias_id": alias_id}
+    return response
 
 
 @logic.side_effect_free
