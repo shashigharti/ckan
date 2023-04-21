@@ -190,11 +190,7 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
 
     if obj_type:
         q = q.filter(model.Member.table_name == obj_type)
-        models = { "user" : model.User, "package": model.Package, "group": model.Group}
-        outer_mdl = models.get(obj_type, None)        
-        if outer_mdl:
-            q = q.join(outer_mdl, outer_mdl.id == model.Member.table_id, isouter=True).\
-                filter(outer_mdl.state=='active')
+        q = _filter_out_deleted_entities(q, obj_type)
 
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
@@ -209,6 +205,23 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
 
     return [(m.table_id, m.table_name, translated_capacity(m.capacity))
             for m in q.all()]
+
+
+def _filter_out_deleted_entities(q: Query[model.Member], obj_type: str) -> Query[model.Member]:
+    """Filter members that do not have an associated entity.
+
+    Given the design of the member table and the lack of a CASCADE trigger, manually
+    deleted entities will not properly drop it's member row. This can cause member_list
+    to return users or datasets that no longer exist in the system.
+    """
+
+    models = { "user" : model.User, "package": model.Package, "group": model.Group }
+    outer_mdl = models.get(obj_type, None)
+    q = q.filter(model.Member.table_name == obj_type)
+    if outer_mdl:
+        q = q.join(outer_mdl, outer_mdl.id == model.Member.table_id, isouter=True).\
+            filter(outer_mdl.state=='active')
+    return q
 
 
 def package_collaborator_list(context: Context,
